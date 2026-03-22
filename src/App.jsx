@@ -1,9 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import TodoItem from './components/TodoItem'
 import './App.css'
 
 function App() {
-  const [todos, setTodos] = useState([])
+  const [todos, setTodos] = useState(() => {
+    const savedTodos = localStorage.getItem('my_todos');
+    return savedTodos ? JSON.parse(savedTodos) : []
+  });
   const [inputValue, setInputValue] = useState('')
+
+  useEffect(() =>{
+    localStorage.setItem('my_todos', JSON.stringify(todos))
+  })
 
   const addTodo = () => {
     if(inputValue.trim() !== ''){
@@ -31,23 +39,26 @@ function App() {
 
 
   return (
-    <div className="app">
+    <div className="app" style={{ maxWidth: '400px', margin: '50px auto', textAlign: 'center'}}>
       <h1>My To-Do List</h1>
 
       <div className="input-wrapper">
         <input 
         value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)} 
+        onChange={(e) => setInputValue(e.target.value)}
+        placeholder='What I need to do?' 
         />
         <button onClick = {addTodo}>Add</button>
       </div>
 
-      <ul>
+      <ul style={{ padding: 0, marginTop: '20px'}}>
         {todos.map(todo => (
-          <li key={todo.id}>
-            {todo.text}
-            <button onClick={() => deleteTodo(todo.id)}>Delete</button>
-          </li>
+          <TodoItem 
+            key={todo.id}
+            todo={todo}
+            deleteTodo={deleteTodo}
+            toggleTodo={toggleTodo}
+          />
         ))}
       </ul>
     </div>
